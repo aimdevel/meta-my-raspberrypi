@@ -14,7 +14,7 @@ $ sudo locale-gen en_US.UTF-8
 
 2. install kas.
 ```
-$ sudo pip3 install kas
+$ pip3 install --user kas
 ```
 
 ### setup and build
