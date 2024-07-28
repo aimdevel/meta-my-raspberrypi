@@ -1,0 +1,43 @@
+#!/bin/sh
+
+cryptedoverlay_enabled() {
+    return 0
+}
+
+cryptedoverlay_run() {
+    echo "start dm-crypt"
+    mkdir -p /dev/rw-partition
+    mkdir -p /dev/key-part
+    echo "mount key-part"
+    mount /dev/mmcblk0p6 /dev/key-part
+    if [ ! -e "/dev/key-part/dm-crypt-key" ];then
+        # initial setup at first boot
+        echo "create key at first boot"
+        dd bs=512 count=4 if=/dev/urandom of=/dev/key-part/dm-crypt-key
+        echo "cryptsetup"
+        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 512 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p5 crypt-partition
+        echo "format fs"
+        mkfs.ext4 /dev/mapper/crypt-partition
+        echo "mount mapped partition"
+        mount /dev/mapper/crypt-partition /dev/rw-partition
+        mount "create directories"
+        cd /dev/rw-partition/
+        mkdir home var etc overlayfs-work
+        cd /dev/rw-partition/overlayfs-work/
+        mkdir home var etc
+        cd
+        umount /dev/rw-partition
+    else
+        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 128 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p5 crypt-partition
+    fi 
+    umount /dev/key-part
+
+    # mount rw partition
+    mount /dev/mapper/crypt-partition /dev/rw-partition
+
+    # mount overlayfs
+    echo "mount overlayfs"
+    mount -t overlay overlay -olowerdir=${ROOTFS_DIR}/home,upperdir=/dev/rw-partition/home,workdir=/dev/rw-partition/overlayfs-work/home ${ROOTFS_DIR}/home
+    mount -t overlay overlay -olowerdir=${ROOTFS_DIR}/var,upperdir=/dev/rw-partition/var,workdir=/dev/rw-partition/overlayfs-work/var ${ROOTFS_DIR}/var
+    mount -t overlay overlay -olowerdir=${ROOTFS_DIR}/etc,upperdir=/dev/rw-partition/etc,workdir=/dev/rw-partition/overlayfs-work/etc ${ROOTFS_DIR}/etc
+}

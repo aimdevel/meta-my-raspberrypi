@@ -4,7 +4,7 @@ header:
 machine: raspberrypi4-64
 distro: poky
 target:
-  - core-image-minimal
+  - core-image-base
 
 repos:
   meta-my-raspberrypi:
@@ -39,7 +39,32 @@ repos:
     url: https://github.com/meta-qt5/meta-qt5/
     path: layers/meta-qt5
     refspec: kirkstone
+  
+  meta-security:
+    url: https://git.yoctoproject.org/meta-security
+    path: layers/meta-security
+    refspec: kirkstone
 
 local_conf_header:
   standard:
     PACKAGE_CLASSES = "package_deb"
+  raspi-u-boot: |
+    ENABLE_UART = "1"
+    RPI_USE_U_BOOT = "1"
+    PREFERRED_PROVIDER_virtual/bootloader = "u-boot"
+  my-fitimage:  |
+    KERNEL_CLASSES = "kernel-fitimage"
+    KERNEL_IMAGETYPE = "fitImage"
+    KERNEL_BOOTCMD = "bootm 0x4000000"
+  my-dmverity:  |
+    DISTRO_FEATURES:append = " security"
+    DISTRO_FEATURES:append = " integrity"
+    DM_VERITY_IMAGE = "core-image-base"
+    DM_VERITY_IMAGE_TYPE = "ext4"
+    IMAGE_CLASSES += "dm-verity-img"
+    INITRAMFS_IMAGE = "my-initramfs"
+    IMAGE_BOOT_FILES:append = " fitImage-my-initramfs-raspberrypi4-64-raspberrypi4-64"
+    WKS_FILE = "my-security.wks.in"
+    KERNEL_FEATURES:append = " ${@bb.utils.contains("IMAGE_CLASSES", "dm-verity-img", " features/device-mapper/dm-verity.scc", "" ,d)}"
+
+
