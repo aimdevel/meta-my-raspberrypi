@@ -65,6 +65,3 @@ local_conf_header:
     INITRAMFS_IMAGE = "my-initramfs"
     IMAGE_BOOT_FILES:append = " fitImage-my-initramfs-raspberrypi4-64-raspberrypi4-64"
     WKS_FILE = "my-security.wks.in"
-    KERNEL_FEATURES:append = " ${@bb.utils.contains("IMAGE_CLASSES", "dm-verity-img", " features/device-mapper/dm-verity.scc", "" ,d)}"
-
-
