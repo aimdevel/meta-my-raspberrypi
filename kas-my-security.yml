@@ -5,6 +5,7 @@ machine: raspberrypi4-64
 distro: poky
 target:
   - core-image-base
+  - update-bundle
 
 repos:
   meta-my-raspberrypi:
@@ -53,6 +54,7 @@ repos:
 local_conf_header:
   standard:
     PACKAGE_CLASSES = "package_deb"
+    IMAGE_FEATURES:append = " debug-tweaks"
   raspi-u-boot: |
     ENABLE_UART = "1"
     RPI_USE_U_BOOT = "1"
@@ -64,6 +66,7 @@ local_conf_header:
   my-dmverity:  |
     DISTRO_FEATURES:append = " security"
     DISTRO_FEATURES:append = " integrity"
+    DISTRO_FEATURES:append = " rauc"
     DM_VERITY_IMAGE = "core-image-base"
     DM_VERITY_IMAGE_TYPE = "ext4"
     IMAGE_CLASSES += "dm-verity-img"

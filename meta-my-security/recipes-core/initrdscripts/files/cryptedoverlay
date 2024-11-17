@@ -9,13 +9,13 @@ cryptedoverlay_run() {
     mkdir -p /dev/rw-partition
     mkdir -p /dev/key-part
     echo "mount key-part"
-    mount /dev/mmcblk0p6 /dev/key-part
+    mount /dev/mmcblk0p8 /dev/key-part
     if [ ! -e "/dev/key-part/dm-crypt-key" ];then
         # initial setup at first boot
         echo "create key at first boot"
         dd bs=512 count=4 if=/dev/urandom of=/dev/key-part/dm-crypt-key
         echo "cryptsetup"
-        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 512 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p5 crypt-partition
+        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 512 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p7 crypt-partition
         echo "format fs"
         mkfs.ext4 /dev/mapper/crypt-partition
         echo "mount mapped partition"
@@ -28,7 +28,7 @@ cryptedoverlay_run() {
         cd
         umount /dev/rw-partition
     else
-        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 128 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p5 crypt-partition
+        cryptsetup --type plain -q -d /dev/key-part/dm-crypt-key -s 512 --hash sha256 -c aes-xts-plain64 open /dev/mmcblk0p7 crypt-partition
     fi 
     umount /dev/key-part
 
