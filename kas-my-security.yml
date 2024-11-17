@@ -52,7 +52,7 @@ repos:
     branch: kirkstone
 
 local_conf_header:
-  standard:
+  standard: |
     PACKAGE_CLASSES = "package_deb"
     IMAGE_FEATURES:append = " debug-tweaks"
   raspi-u-boot: |
