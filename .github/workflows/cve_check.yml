@@ -45,6 +45,7 @@ jobs:
             xz-utils \
             zstd \
             sudo \
+            kas \
             locales && \
             sudo apt clean
 
