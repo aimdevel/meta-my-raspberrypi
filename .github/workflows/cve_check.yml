@@ -19,7 +19,6 @@ jobs:
           sudo apt update && \
             sudo apt upgrade -y && \
             sudo apt install -y \
-          # install tools for yocto
             build-essential \
             chrpath \
             cpio \
@@ -45,7 +44,6 @@ jobs:
             wget \
             xz-utils \
             zstd \
-          # install other tools
             sudo \
             locales && \
             apt clean
