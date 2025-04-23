@@ -16,9 +16,9 @@ jobs:
 
       - name: Install tools
         run: |
-          apt update && \
-            apt upgrade -y && \
-            apt install -y \
+          sudo apt update && \
+            sudo apt upgrade -y && \
+            sudo apt install -y \
           # install tools for yocto
             build-essential \
             chrpath \
@@ -51,8 +51,8 @@ jobs:
             apt clean
 
           # gen locale
-          locale-gen en_US.UTF-8 && \
-            update-locale LANG=en_US.UTF-8
+          sudo locale-gen en_US.UTF-8 && \
+            sudo update-locale LANG=en_US.UTF-8
 
       - name: Fetch dependency
         run: |
