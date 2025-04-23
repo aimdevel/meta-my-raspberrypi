@@ -46,7 +46,7 @@ jobs:
             zstd \
             sudo \
             locales && \
-            apt clean
+            sudo apt clean
 
           # gen locale
           sudo locale-gen en_US.UTF-8 && \
