@@ -68,13 +68,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/downloads
-          key: yocto_dl
+          key: yocto_dl-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
+          restore-keys: |
+            yocto_dl-${{ runner.os }}-
+            yocto_dl-
 
       - name: Restore yocto sstate cache
         uses: actions/cache@v4
         with:
           path: build/sstate-cache
-          key: yocto_sstate
+          key: yocto_sstate-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
+          restore-keys: |
+            yocto_sstate-${{ runner.os }}-
+            yocto_sstate-
 
       - name: Run cve-check
         run: |
