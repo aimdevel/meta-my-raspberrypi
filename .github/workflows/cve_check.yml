@@ -3,6 +3,9 @@ name: Run on Push to  Branch
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - check_vulnerability
 
 jobs:
   build:
