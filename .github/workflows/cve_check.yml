@@ -79,7 +79,7 @@ jobs:
       - name: Run cve-check
         run: |
           . layers/poky/oe-init-build-env build/
-          bitbake core-image-minimal
+          bitbake core-image-base
 
       - name: Upload result
         uses: actions/upload-artifact@v4
