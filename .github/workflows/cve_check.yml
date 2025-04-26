@@ -2,9 +2,7 @@
 name: Run on Push to  Branch
 
 on:
-  push:
-    branches:
-      - check_vulnerability
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,46 +11,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install tools
-        if: false
-        run: |
-          sudo apt update && \
-            sudo apt upgrade -y && \
-            sudo apt install -y \
-            build-essential \
-            chrpath \
-            cpio \
-            debianutils \
-            diffstat \
-            file \
-            gawk \
-            gcc \
-            git \
-            iputils-ping \
-            libacl1 \
-            liblz4-tool \
-            locales \
-            python3 \
-            python3-git \
-            python3-jinja2 \
-            python3-pexpect \
-            python3-pip \
-            python3-subunit \
-            socat \
-            texinfo \
-            unzip \
-            wget \
-            xz-utils \
-            zstd \
-            sudo \
-            kas \
-            locales && \
-            sudo apt clean
-
-          # gen locale
-          sudo locale-gen en_US.UTF-8 && \
-            sudo update-locale LANG=en_US.UTF-8
 
       - name: Fetch dependency
         run: |
@@ -64,28 +22,59 @@ jobs:
           echo "BB_NUMBER_THREADS = '6'"  >> build/conf/local.conf
           echo "PARALLEL_MAKE = '-j 4'"   >> build/conf/local.conf
 
-      - name: Restore yocto download cache
+      - name: Compress downloads
+        run: |
+          mkdir -p cache-compressed
+          if [ -d build/downloads ]; then
+            tar -I 'zstd -19' -cf cache-compressed/downloads.tar.zst -C build downloads
+          fi
+  
+      - name: Restore downloads from cache
         uses: actions/cache@v4
         with:
-          path: build/downloads
-          key: yocto_dl-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
+          path: cache-compressed/downloads.tar.zst
+          key: yocto_downloads-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
           restore-keys: |
-            yocto_dl-${{ runner.os }}-
-            yocto_dl-
+            yocto_downloads-${{ runner.os }}-
+            yocto_downloads-
 
-      - name: Restore yocto sstate cache
+      - name: Compress sstate-cache
+        run: |
+          mkdir -p cache-compressed
+          if [ -d build/sstate-cache ]; then
+            tar -I 'zstd -19' -cf cache-compressed/sstate-cache.tar.zst -C build sstate-cache
+          fi
+
+      - name: Restore sstate-cache from cache
         uses: actions/cache@v4
         with:
-          path: build/sstate-cache
-          key: yocto_sstate-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
+          path: cache-compressed/sstate-cache.tar.zst
+          key: yocto_sstate_compressed-${{ runner.os }}-${{ hashFiles('build/conf/local.conf') }}
           restore-keys: |
-            yocto_sstate-${{ runner.os }}-
-            yocto_sstate-
+            yocto_sstate_compressed-${{ runner.os }}-
+            yocto_sstate_compressed-
+
+      - name: Extract sstate-cache
+        run: |
+          if [ -f cache-compressed/sstate-cache.tar.zst ]; then
+            mkdir -p build
+            tar -I 'zstd -d' -xf cache-compressed/sstate-cache.tar.zst -C build
+          fi
 
       - name: Run cve-check
         run: |
           . layers/poky/oe-init-build-env build/
           bitbake core-image-base
+
+      - name: Re-compress sstate-cache after build
+        run: |
+          rm -f cache-compressed/sstate-cache.tar.zst
+          tar -I 'zstd -19' -cf cache-compressed/sstate-cache.tar.zst -C build sstate-cache
+
+      - name: Re-compress downloads after build
+        run: |
+          rm -f cache-compressed/downloads.tar.zst
+          tar -I 'zstd -19' -cf cache-compressed/downloads.tar.zst -C build downloads
 
       - name: Upload result
         uses: actions/upload-artifact@v4
