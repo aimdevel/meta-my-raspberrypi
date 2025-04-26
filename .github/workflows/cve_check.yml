@@ -61,8 +61,8 @@ jobs:
       - name: Add cve-check
         run: |
           echo "INHERIT += \"cve-check\""   >> build/conf/local.conf
-          echo "BB_NUMBER_THREADS = \'6\'"  >> build/conf/local.conf
-          echo "PARALLEL_MAKE = \'-j 4\'"   >> build/conf/local.conf
+          echo "BB_NUMBER_THREADS = '6'"  >> build/conf/local.conf
+          echo "PARALLEL_MAKE = '-j 4'"   >> build/conf/local.conf
 
       - name: Restore yocto download cache
         uses: actions/cache@v4

@@ -36,6 +36,7 @@ RUN apt update && \
     xz-utils \
     zstd \
     # install other tools
+    kas \
     sudo \
     locales && \
     apt clean
