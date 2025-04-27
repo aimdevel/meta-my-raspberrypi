@@ -30,12 +30,15 @@ jobs:
           . layers/poky/oe-init-build-env build/
           bitbake core-image-base
 
-      - name: Upload result
+      - name: Upload cve
         uses: actions/upload-artifact@v4
         with:
           name: cve-result
-          path: build/tmp/deploy/cve
-
+          path: |
+            build/tmp/deploy/cve
+            build/tmp/deploy/images/raspberrypi4-64/*.rootfs.json
+            build/tmp/deploy/images/raspberrypi4-64/*.rootfs.cve
+      
       - name: Check CVE
         if: false
         run: |
