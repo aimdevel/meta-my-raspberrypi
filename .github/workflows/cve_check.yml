@@ -1,0 +1,42 @@
+
+name: Run on Push to  Branch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, yocto-build]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch dependency
+        run: |
+          kas checkout kas-my-security.yml
+
+      - name: Add cve-check
+        run: |
+          echo "INHERIT += \"cve-check\""   >> build/conf/local.conf
+          echo "BB_NUMBER_THREADS = '6'"  >> build/conf/local.conf
+          echo "PARALLEL_MAKE = '-j 4'"   >> build/conf/local.conf
+
+      - name: Run cve-check
+        run: |
+          . layers/poky/oe-init-build-env build/
+          bitbake core-image-base
+
+      - name: Upload cve
+        uses: actions/upload-artifact@v4
+        with:
+          name: cve-result
+          path: |
+            build/tmp/deploy/cve
+            build/tmp/deploy/images/raspberrypi4-64/*.rootfs.json
+            build/tmp/deploy/images/raspberrypi4-64/*.rootfs.cve
+      
+      - name: Check CVE
+        if: false
+        run: |
+          
