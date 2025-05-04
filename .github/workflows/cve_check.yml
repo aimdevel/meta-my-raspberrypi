@@ -19,8 +19,13 @@ jobs:
       - name: Add cve-check
         run: |
           echo "INHERIT += \"cve-check\""   >> build/conf/local.conf
-          echo "BB_NUMBER_THREADS = '6'"  >> build/conf/local.conf
+          echo "BB_NUMBER_THREADS = '8'"  >> build/conf/local.conf
           echo "PARALLEL_MAKE = '-j 4'"   >> build/conf/local.conf
+      
+      - name: set shared yocto cache path
+        run: |
+          echo "DL_DIR = \"/opt/yocto-cache/downloads\""   >> build/conf/local.conf
+          echo "SSTATE_DIR = \"/opt/yocto-cache/sstate-cache\""  >> build/conf/local.conf
 
       - name: Run cve-check
         run: |
@@ -37,6 +42,6 @@ jobs:
             build/tmp/deploy/images/raspberrypi4-64/*.rootfs.cve
       
       - name: Check CVE
-        if: false
         run: |
+          ./ci/cve-check/check_yocto_cve_json.py ./build/tmp/deploy/images/raspberrypi4-64/core-image-base-raspberrypi4-64.json --config ./ci/cve-check/config_sample.json
           
