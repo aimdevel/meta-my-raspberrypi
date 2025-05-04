@@ -24,7 +24,7 @@ jobs:
       
       - name: set shared yocto cache path
         run: |
-          echo "DL_DIR += \"/opt/yocto-cache/downloads\""   >> build/conf/local.conf
+          echo "DL_DIR = \"/opt/yocto-cache/downloads\""   >> build/conf/local.conf
           echo "SSTATE_DIR = \"/opt/yocto-cache/sstate-cache\""  >> build/conf/local.conf
 
       - name: Run cve-check
