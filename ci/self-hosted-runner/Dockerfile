@@ -45,6 +45,9 @@ RUN apt update && \
 RUN locale-gen en_US.UTF-8 && \
     update-locale LANG=en_US.UTF-8
 
+# create shared yocto cache directory 
+RUN mkdir -p /opt/yocto-cache && chmod 777 /opt/yocto-cache
+
 WORKDIR /runner
 
 ENV RUNNER_VERSION=2.323.0
